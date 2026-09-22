@@ -1,0 +1,124 @@
+{
+  "_comment": "Ground-truth expected structured intent for each prompt. 'tickers' is compared as a set (order-insensitive). If 'timeframe_pattern' is null, that field is not graded (used for the deliberately-ambiguous / needs-clarification cases). 'metric' and 'analysis_type' are null (not graded) whenever needs_clarification is expected to be true, since a request that needs clarification never reaches those fields meaningfully. Case #23 is a deliberate known-limitation case (see README) included specifically so this eval set is not tuned to trivially pass -- it demonstrates the mock planner's fixed company-name dictionary missing an uncommon name, which a real LLM provider would not be expected to miss.",
+  "reference_date_note": "Timeframe patterns like 'last_6_months' resolve relative to the date the eval is run; the eval grades the *pattern string*, not resolved calendar dates, so results are stable across days.",
+  "cases": [
+    {
+      "id": "p01",
+      "prompt": "Compare Apple and Microsoft over the last 6 months.",
+      "expected": {"tickers": ["AAPL", "MSFT"], "timeframe_pattern": "last_6_months", "metric": "normalized_returns", "analysis_type": "comparison", "needs_clarification": false}
+    },
+    {
+      "id": "p02",
+      "prompt": "Show me Tesla's performance during 2025.",
+      "expected": {"tickers": ["TSLA"], "timeframe_pattern": "year:2025", "metric": ["price", "normalized_returns"], "analysis_type": "single", "needs_clarification": false}
+    },
+    {
+      "id": "p03",
+      "prompt": "Compare AAPL, MSFT and NVDA over the past 6 months.",
+      "expected": {"tickers": ["AAPL", "MSFT", "NVDA"], "timeframe_pattern": "last_6_months", "metric": "normalized_returns", "analysis_type": "comparison", "needs_clarification": false}
+    },
+    {
+      "id": "p04",
+      "prompt": "Plot normalized returns for Tesla and Apple since January 2024.",
+      "expected": {"tickers": ["AAPL", "TSLA"], "timeframe_pattern": "since:2024-01-01", "metric": "normalized_returns", "analysis_type": "comparison", "needs_clarification": false}
+    },
+    {
+      "id": "p05",
+      "prompt": "How has Amazon done over the last year?",
+      "expected": {"tickers": ["AMZN"], "timeframe_pattern": "last_1_years", "metric": "price", "analysis_type": "single", "needs_clarification": false}
+    },
+    {
+      "id": "p06",
+      "prompt": "Compare Netflix and Meta over the last 3 months.",
+      "expected": {"tickers": ["META", "NFLX"], "timeframe_pattern": "last_3_months", "metric": "normalized_returns", "analysis_type": "comparison", "needs_clarification": false}
+    },
+    {
+      "id": "p07",
+      "prompt": "Show NVDA year to date.",
+      "expected": {"tickers": ["NVDA"], "timeframe_pattern": "ytd", "metric": "price", "analysis_type": "single", "needs_clarification": false}
+    },
+    {
+      "id": "p08",
+      "prompt": "Compare Google and Amazon cumulative returns since 2023-01-01.",
+      "expected": {"tickers": ["AMZN", "GOOGL"], "timeframe_pattern": "since:2023-01-01", "metric": "cumulative_returns", "analysis_type": "comparison", "needs_clarification": false}
+    },
+    {
+      "id": "p09",
+      "prompt": "What has Intel's stock done in 2024?",
+      "expected": {"tickers": ["INTC"], "timeframe_pattern": "year:2024", "metric": ["price", "normalized_returns"], "analysis_type": "single", "needs_clarification": false}
+    },
+    {
+      "id": "p10",
+      "prompt": "Compare AMD vs NVDA over the last 2 years.",
+      "expected": {"tickers": ["AMD", "NVDA"], "timeframe_pattern": "last_2_years", "metric": "normalized_returns", "analysis_type": "comparison", "needs_clarification": false}
+    },
+    {
+      "id": "p11",
+      "prompt": "Plot Berkshire Hathaway's performance since March 2022.",
+      "expected": {"tickers": ["BRK-B"], "timeframe_pattern": "since:2022-03-01", "metric": "price", "analysis_type": "single", "needs_clarification": false}
+    },
+    {
+      "id": "p12",
+      "prompt": "Compare Apple, Microsoft, and Google over the last 90 days.",
+      "expected": {"tickers": ["AAPL", "MSFT", "GOOGL"], "timeframe_pattern": "last_90_days", "metric": "normalized_returns", "analysis_type": "comparison", "needs_clarification": false}
+    },
+    {
+      "id": "p13",
+      "prompt": "Tesla stock price last month",
+      "expected": {"tickers": ["TSLA"], "timeframe_pattern": "last_1_months", "metric": "price", "analysis_type": "single", "needs_clarification": false}
+    },
+    {
+      "id": "p14",
+      "prompt": "Compare TSLA and AAPL normalized returns YTD",
+      "expected": {"tickers": ["TSLA", "AAPL"], "timeframe_pattern": "ytd", "metric": "normalized_returns", "analysis_type": "comparison", "needs_clarification": false}
+    },
+    {
+      "id": "p15",
+      "prompt": "How is the market doing?",
+      "expected": {"tickers": [], "timeframe_pattern": null, "metric": null, "analysis_type": null, "needs_clarification": true}
+    },
+    {
+      "id": "p16",
+      "prompt": "Compare some tech stocks",
+      "expected": {"tickers": [], "timeframe_pattern": null, "metric": null, "analysis_type": null, "needs_clarification": true}
+    },
+    {
+      "id": "p17",
+      "prompt": "Show me the S&P 500 this year",
+      "expected": {"tickers": [], "timeframe_pattern": null, "metric": null, "analysis_type": null, "needs_clarification": true}
+    },
+    {
+      "id": "p18",
+      "prompt": "MSFT vs AAPL last 5 years",
+      "expected": {"tickers": ["MSFT", "AAPL"], "timeframe_pattern": "last_5_years", "metric": "normalized_returns", "analysis_type": "comparison", "needs_clarification": false}
+    },
+    {
+      "id": "p19",
+      "prompt": "Facebook's total return over the past 2 years",
+      "expected": {"tickers": ["META"], "timeframe_pattern": "last_2_years", "metric": "cumulative_returns", "analysis_type": "single", "needs_clarification": false}
+    },
+    {
+      "id": "p20",
+      "prompt": "Compare Apple and its performance since last quarter",
+      "expected": {"tickers": ["AAPL"], "timeframe_pattern": null, "metric": null, "analysis_type": null, "needs_clarification": true},
+      "note": "'last quarter' is not in the supported timeframe vocabulary -- the system should ask for clarification rather than guess a date range."
+    },
+    {
+      "id": "p21",
+      "prompt": "since 2024-05-10 how has NVDA done",
+      "expected": {"tickers": ["NVDA"], "timeframe_pattern": "since:2024-05-10", "metric": "price", "analysis_type": "single", "needs_clarification": false}
+    },
+    {
+      "id": "p22",
+      "prompt": "Compare AAPL and MSFT",
+      "expected": {"tickers": ["AAPL", "MSFT"], "timeframe_pattern": null, "metric": null, "analysis_type": null, "needs_clarification": true},
+      "note": "No timeframe given at all -- the system should ask for clarification rather than assume a default range."
+    },
+    {
+      "id": "p23",
+      "prompt": "Compare Coca-Cola and Pepsi over the last year",
+      "expected": {"tickers": ["KO", "PEP"], "timeframe_pattern": "last_1_years", "metric": "normalized_returns", "analysis_type": "comparison", "needs_clarification": false},
+      "note": "KNOWN LIMITATION CASE: the offline mock LLM only recognizes a fixed set of ~13 company names and will fail this one (see README 'Known Limitations'). Included deliberately so the eval set is not tuned to 100% -- a real LLM provider (LLM_PROVIDER=openai/anthropic) would be expected to pass it."
+    }
+  ]
+}
