@@ -80,11 +80,11 @@ and structured error translation (`OrchestratorError`) at every step.
 
 ## Available tools
 
-| Tool | Purpose |
-|---|---|
-| `fetch_stock_data(ticker, start_date, end_date)` | Raw OHLCV + headline metrics for one ticker |
-| `calculate_returns(ticker, start_date, end_date, kind)` | Daily or cumulative return series for one ticker |
-| `compute_comparison(tickers, start_date, end_date, metric)` | Multi-ticker aligned comparison data, no chart |
+| Tool                                                                    | Purpose                                                                 |
+| ----------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `fetch_stock_data(ticker, start_date, end_date)`                      | Raw OHLCV + headline metrics for one ticker                             |
+| `calculate_returns(ticker, start_date, end_date, kind)`               | Daily or cumulative return series for one ticker                        |
+| `compute_comparison(tickers, start_date, end_date, metric)`           | Multi-ticker aligned comparison data, no chart                          |
 | `plot_comparison(tickers, start_date, end_date, metric, chart_title)` | The primary end-to-end tool: fetch + compute + render a PNG in one call |
 
 ---
@@ -92,8 +92,8 @@ and structured error translation (`OrchestratorError`) at every step.
 ## Installation
 
 ```bash
-git clone <this repo>
-cd financial-analyst-mcp
+git clone https://github.com/VisheshGupta2004/Financial-Analyst-MCP
+cd Financial-Analyst-MCP
 python3 -m venv .venv
 source .venv/bin/activate       # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
@@ -116,6 +116,7 @@ launches it automatically as a subprocess per request. To run/inspect it
 standalone:
 
 **macOS/Linux/WSL/Git Bash:**
+
 ```bash
 ./scripts/run_mcp_server.sh
 # or, with the official inspector UI:
@@ -124,11 +125,13 @@ mcp dev backend/mcp_server.py
 
 **Windows PowerShell** (`.sh` scripts won't run natively in PowerShell —
 use the `.ps1` equivalents, or run the commands directly):
+
 ```powershell
 .\scripts\run_mcp_server.ps1
 # or directly:
 python -m backend.mcp_server
 ```
+
 If PowerShell blocks script execution, either run once per session:
 `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned`, or just
 run the underlying command shown above directly instead of the `.ps1` file.
@@ -136,11 +139,13 @@ run the underlying command shown above directly instead of the `.ps1` file.
 ## How to start the FastAPI backend
 
 **macOS/Linux/WSL/Git Bash:**
+
 ```bash
 ./scripts/run_backend.sh
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 .\scripts\run_backend.ps1
 # or directly:
@@ -150,6 +155,7 @@ uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload
 
 Note: there is no route at `/` — visiting `http://127.0.0.1:8000/` will
 correctly show `{"detail":"Not Found"}`. Use these instead:
+
 - `http://127.0.0.1:8000/health` — status check
 - `http://127.0.0.1:8000/docs` — interactive API docs, lets you try `/analyze` directly
 
@@ -158,11 +164,13 @@ correctly show `{"detail":"Not Found"}`. Use these instead:
 In a second terminal, with the backend already running:
 
 **macOS/Linux/WSL/Git Bash:**
+
 ```bash
 ./scripts/run_frontend.sh
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 .\scripts\run_frontend.ps1
 # or directly:
@@ -174,12 +182,14 @@ Visit the URL Streamlit prints (typically `http://localhost:8501`).
 ## How to run tests
 
 **macOS/Linux/WSL/Git Bash:**
+
 ```bash
 pip install -r requirements.txt   # needed for the full suite, see below
 ./scripts/run_tests.sh
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 pip install -r requirements.txt
 .\scripts\run_tests.ps1
@@ -188,6 +198,7 @@ python -m pytest tests\ -v
 ```
 
 Every test file also runs with plain stdlib unittest, no pytest required:
+
 ```bash
 python -m unittest discover -s tests -v
 ```
@@ -265,6 +276,7 @@ Being upfront about exactly what that means:
 
 **Fully executed and verified in that sandbox (82 automated tests, all
 passing, plus real generated PNG files inspected):**
+
 - `backend/date_utils.py` — 22 tests, including month-end edge cases
 - `backend/tools/data.py` — 18 tests using a fake yfinance module
   (dependency-injected), covering retries, empty results, malformed
@@ -283,6 +295,7 @@ passing, plus real generated PNG files inspected):**
 documented, real APIs, but not executable in that no-network sandbox**
 because they require `pydantic`, `fastapi`, `mcp`, or `streamlit`, none of
 which could be installed:
+
 - `backend/schemas.py`, `backend/planner.py`, `backend/critic.py`
 - `backend/mcp_server.py`, `backend/orchestrator.py`
 - `backend/main.py` (FastAPI), `frontend/app.py` (Streamlit)
@@ -352,18 +365,18 @@ have not had the chance to execute the pydantic/FastAPI/MCP layers myself.
 
 ## Troubleshooting
 
-| Symptom | Likely cause | Fix |
-|---|---|---|
-| `Could not reach the backend` in Streamlit | FastAPI isn't running, or `BACKEND_URL` mismatch | Start it with `./scripts/run_backend.sh`; check `BACKEND_URL` in `.env` matches |
-| `/health` returns `"status": "degraded"` | The MCP server subprocess failed to start | Run `./scripts/run_mcp_server.sh` directly to see the real error; check `MCP_SERVER_COMMAND`/`MCP_SERVER_ARGS` in `.env` |
-| `LLM_API_KEY is not set` error | `LLM_PROVIDER` is `openai`/`anthropic` but no key in `.env` | Add a real key, or switch to `LLM_PROVIDER=mock` |
-| `No trading data found for ticker` | Ticker doesn't exist, is delisted, or has no data in the requested range | Check spelling; try a shorter/more recent range |
-| Tests in `test_planner.py`/`test_mcp.py`/`test_api.py` are skipped | Missing `pydantic`/`mcp`/`fastapi` | `pip install -r requirements.txt` |
-| Chart doesn't render in Streamlit | Backend's `OUTPUT_DIR` isn't reachable at `/output/...` | Confirm `output/` exists and the backend mounted it (it does, in `main.py`, at startup) |
-| `mcp` still shows as skipped after `pip install -r requirements.txt` | Check `pip show mcp` — if not found, likely a version-compatibility gap between `mcp` and a very new Python version (e.g. 3.14) | `pip install mcp` directly and read the error; if it's a compatibility issue, create the venv with Python 3.12 or 3.13 instead: `py -3.12 -m venv .venv` |
-| `.sh` scripts don't run in Windows PowerShell | PowerShell doesn't execute bash scripts natively | Use the `.ps1` equivalents in `scripts/` (e.g. `.\scripts\run_backend.ps1`), or run the underlying command shown inside each script directly |
-| PowerShell refuses to run `.ps1` scripts ("running scripts is disabled") | Default PowerShell execution policy | Run once per session: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned`, then retry |
-| `http://127.0.0.1:8000/` shows `{"detail":"Not Found"}` | Expected — there is no route at `/` | Use `/health` or `/docs` instead |
+| Symptom                                                                    | Likely cause                                                                                                                         | Fix                                                                                                                                                          |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Could not reach the backend` in Streamlit                               | FastAPI isn't running, or `BACKEND_URL` mismatch                                                                                   | Start it with `./scripts/run_backend.sh`; check `BACKEND_URL` in `.env` matches                                                                        |
+| `/health` returns `"status": "degraded"`                               | The MCP server subprocess failed to start                                                                                            | Run `./scripts/run_mcp_server.sh` directly to see the real error; check `MCP_SERVER_COMMAND`/`MCP_SERVER_ARGS` in `.env`                             |
+| `LLM_API_KEY is not set` error                                           | `LLM_PROVIDER` is `openai`/`anthropic` but no key in `.env`                                                                  | Add a real key, or switch to `LLM_PROVIDER=mock`                                                                                                           |
+| `No trading data found for ticker`                                       | Ticker doesn't exist, is delisted, or has no data in the requested range                                                             | Check spelling; try a shorter/more recent range                                                                                                              |
+| Tests in `test_planner.py`/`test_mcp.py`/`test_api.py` are skipped   | Missing `pydantic`/`mcp`/`fastapi`                                                                                             | `pip install -r requirements.txt`                                                                                                                          |
+| Chart doesn't render in Streamlit                                          | Backend's `OUTPUT_DIR` isn't reachable at `/output/...`                                                                          | Confirm `output/` exists and the backend mounted it (it does, in `main.py`, at startup)                                                                  |
+| `mcp` still shows as skipped after `pip install -r requirements.txt`   | Check `pip show mcp` — if not found, likely a version-compatibility gap between `mcp` and a very new Python version (e.g. 3.14) | `pip install mcp` directly and read the error; if it's a compatibility issue, create the venv with Python 3.12 or 3.13 instead: `py -3.12 -m venv .venv` |
+| `.sh` scripts don't run in Windows PowerShell                            | PowerShell doesn't execute bash scripts natively                                                                                     | Use the `.ps1` equivalents in `scripts/` (e.g. `.\scripts\run_backend.ps1`), or run the underlying command shown inside each script directly           |
+| PowerShell refuses to run `.ps1` scripts ("running scripts is disabled") | Default PowerShell execution policy                                                                                                  | Run once per session: `Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned`, then retry                                                       |
+| `http://127.0.0.1:8000/` shows `{"detail":"Not Found"}`                | Expected — there is no route at `/`                                                                                               | Use `/health` or `/docs` instead                                                                                                                         |
 
 ---
 
